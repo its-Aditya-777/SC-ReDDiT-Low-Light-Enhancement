@@ -1,164 +1,234 @@
+# SC-ReDDiT
+## Inference-Time Stochastic Consensus for Diffusion-Based Low-Light Image Enhancement using ReDDiT-4
 
+SC-ReDDiT is an inference-time consensus approach built on the ReDDiT-4 low-light image enhancement model. It generates four independent stochastic predictions from the same pretrained model and averages them pixel-wise. No additional model training is required.
 
-<div align=center>
-  
-# **[CVPR2025]** Efficient Diffusion as Low Light Enhancer
+**This repository contains the ReDDiT source implementation used by SC-ReDDiT**, including the model, diffusion, data loading, configuration, and utility code, together with the SC-ReDDiT evaluation scripts and recorded results. You do not need to clone a separate ReDDiT source-code repository.
 
-<p>
-<a href='https://arxiv.org/abs/2410.12346'><img src='https://img.shields.io/badge/Paper-arXiv-red'></a>
-<a href='https://mqleet.github.io/ReDDiT_Project/'><img src='https://img.shields.io/badge/Project-Page-blue'></a>
-</p>
+> **External assets are still required:** the LOLv2-Real dataset and compatible pretrained ReDDiT-4 checkpoint are not included in Git because of their size and distribution restrictions.
 
-</div>
+---
 
-## :fire: News
+## 1. Method
 
-- [2025/03/04] We have released the training code and inference code! 🚀🚀
-- [2025/02/27] ReDDiT has been accepted to CVPR 2025! 🤗🤗
+Four independent ReDDiT-4 inference runs are performed with the following random seeds:
 
-## :memo: TODO
+| Run | Seed |
+|---:|---:|
+| 1 | 5660 |
+| 2 | 459 |
+| 3 | 6429 |
+| 4 | 2705 |
 
-- [x] Training code
-- [x] Inference code
-- [x] CVPR Camera-ready Version
-- [x] Project page
-- [ ] Journal Version & Teacher Model 
+For predictions \(I_1, I_2, I_3, I_4\), the consensus is:
 
-## :hammer: Get Started
+\[
+I_{SC} = \frac{1}{4}\sum_{k=1}^{4} I_k
+\]
 
-### :mag: Dependencies and Installation
+The four predictions are averaged pixel-wise, and the final image is clipped to the valid 8-bit range.
 
-- Python 3.8
-- Pytorch 1.11
+## 2. Experimental Results
 
-1. Create Conda Environment
+Evaluation was performed on the 100 paired images in the LOLv2-Real test set.
 
+### Sample-count ablation
+
+| Samples | PSNR (dB) | SSIM | LPIPS |
+|---:|---:|---:|---:|
+| 1 | 31.2293 | 0.9036 | 0.0366 |
+| 2 | 31.3621 | 0.9097 | 0.0352 |
+| 3 | 31.4086 | 0.9118 | 0.0348 |
+| 4 | **31.4315** | **0.9128** | **0.0346** |
+
+The four-sample result is +0.2023 dB PSNR and +0.0092 SSIM relative to the mean single-sample result in this experiment.
+
+The four-sample consensus achieves higher per-image PSNR than the mean of the individual samples on 96 of the 100 test images.
+
+### Important evaluation qualification
+
+The adjusted metrics above follow the brightness adjustment used by the original ReDDiT evaluation code: the predicted image is scaled using the mean brightness of its paired ground-truth image.
+
+Because this operation uses ground-truth information, these adjusted metrics are **not a strictly inference-only or deployment-time evaluation**. They should be interpreted as results under that benchmark protocol, not as proof of a ground-truth-independent improvement.
+
+For transparency, the four-sample consensus before ground-truth-dependent brightness adjustment achieved:
+
+- **Raw PSNR:** 28.0527 dB
+- **Raw SSIM:** 0.9054
+
+The raw and adjusted metrics represent different evaluation settings and should not be compared as though they were calculated on identical predictions.
+
+Recorded results and per-image data are available in `SC_ReDDiT_Final/`.
+
+---
+
+## 3. Repository Contents
+
+- `model/`, `core/`, `data/`, `options/`, `utils/`: ReDDiT model and supporting implementation.
+- `config/lolv2_real.yml`: LOLv2 dataset configuration.
+- `config/lolv2_real_test.json`: ReDDiT-4 inference configuration.
+- `test.py`: Inference script, modified to save raw predictions before ground-truth-dependent brightness adjustment.
+- `evaluate_sc_reddit_final.py`: Four-run consensus and 1/2/3/4-sample evaluation.
+- `eval_reddit_ensemble4.py`: Additional four-run consensus utility.
+- `SC_ReDDiT_Final/`: Recorded result summary and CSV files.
+- `ensemble4_results/`: Saved consensus result images.
+
+---
+
+## 4. Environment and Installation
+
+The inference implementation requires an NVIDIA GPU and a CUDA-enabled PyTorch installation.
+
+### Step 1: Clone this repository
+
+```bash
+git clone https://github.com/its-Aditya-777/SC-ReDDiT-Low-Light-Enhancement.git
+cd SC-ReDDiT-Low-Light-Enhancement
 ```
-conda create --name ReDDiT python=3.8
-conda activate ReDDiT
+
+### Step 2: Create a Python environment
+
+Python 3.8 was specified by the original ReDDiT project.
+
+```bash
+conda create -n sc-reddit python=3.8
+conda activate sc-reddit
 ```
 
-2. Install PyTorch
+### Step 3: Install PyTorch
 
-```
-pip install torch==1.11.0+cu113 torchvision==0.12.0+cu113 torchaudio==0.11.0 --extra-index-url https://download.pytorch.org/whl/cu113
-```
+Install a PyTorch and torchvision build compatible with your NVIDIA driver and CUDA environment.
 
-3. Install Dependencies
+Use the official PyTorch installation selector:
 
-```
-cd ReDDiT
+https://pytorch.org/get-started/locally/
+
+### Step 4: Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### :page_with_curl: Data Preparation
+The first LPIPS evaluation may download the pretrained VGG weights used by the LPIPS package.
 
-You can refer to the following links to download the datasets.
+---
 
-- [LOLv1](https://daooshee.github.io/BMVC2018website/)
-- [LOLv2](https://github.com/flyywh/CVPR-2020-Semi-Low-Light)
+## 5. Dataset Preparation
 
-Then, put them in the following folder:
+Download LOLv2 from the dataset provider:
 
-<details open> <summary>dataset (click to expand)</summary>
+https://github.com/flyywh/CVPR-2020-Semi-Low-Light
 
-```
-├── dataset
-    ├── LOLv1
-        ├── our485
-            ├──low
-            ├──high
-	├── eval15
-            ├──low
-            ├──high
-├── dataset
-   ├── LOLv2
-       ├── Real_captured
-           ├── Train
-	   ├── Test
-       ├── Synthetic
-           ├── Train
-	   ├── Test
+For this experiment, place the **LOLv2-Real test split** in the following exact structure:
+
+```text
+dataset/
+└── LOL-v2/
+    └── Real_captured/
+        └── Test/
+            ├── Low/
+            └── Normal/
 ```
 
-</details>
+The `Low` and `Normal` folders must contain the corresponding 100 test images with matching filenames.
 
-### :blue_book: Testing
+The dataset is not included in this repository.
 
-Note: Following LLFlow and KinD, we have also adjusted the brightness of the output image produced by the network, based on the average value of Ground Truth (GT). ``It should be noted that this adjustment process does not influence the texture details generated; it is merely a straightforward method to regulate the overall illumination.`` Moreover, it can be easily adjusted according to user preferences in practical applications.
+---
 
-You can also refer to the following links to download the checkpoints from [Google Drive](https://drive.google.com/file/d/13_XM8nFxJc2IfUotC2_lJo9ATt0rcIyg/view?usp=sharing) or [百度网盘 (Baidu Netdisk)](https://pan.baidu.com/s/1J7MP33Ws5kE673F-8zc2RA?pwd=nj8b) and put it in the following folder:
+## 6. Pretrained Checkpoint
 
+Download the ReDDiT pretrained checkpoint release:
+
+https://drive.google.com/file/d/13_XM8nFxJc2IfUotC2_lJo9ATt0rcIyg/view?usp=sharing
+
+The LOLv2-Real four-step checkpoint expected by the supplied configuration is:
+
+```text
+checkpoint/
+└── lolv2_real_4step_gen.pth
 ```
-├── checkpoints
-    ├── lolv1_8step_gen.pth
-    ├── lolv1_4step_gen.pth
-    ├── lolv1_2step_gen.pth
-    ......
+
+The checkpoint must be compatible with `config/lolv2_real_test.json`.
+
+Checkpoints are not committed to Git.
+
+---
+
+## 7. Reproducing the Four Inference Runs
+
+Run all commands from the repository root.
+
+The configuration file `config/lolv2_real_test.json` must contain a top-level seed entry. Before each run, set its value to the corresponding seed below. For example, add `"seed": 5660` alongside the `"name"` and `"phase"` entries.
+
+For each seed, execute:
+
+```bash
+python test.py --dataset ./config/lolv2_real.yml --config config/lolv2_real_test.json --phase val --gpu_ids 0 --w_str 0.9 --w_snr 0.2 --w_gt 0.2 --w_lpips 0.1
 ```
-To test the model using the ``sh test.sh`` command and modify the `n_timestep` and `time_scale` parameters for different step models. Here's a general outline of the steps:
+
+Repeat the inference command once for each seed, in this order:
+
+```text
+5660
+459
+6429
+2705
 ```
-"val": {
-    "schedule": "linear",
-                "n_timestep": 8,
-                "linear_start": 1e-4,
-                "linear_end": 2e-2,
-                "time_scale": 64
+
+Each run should generate 100 raw predictions under its own timestamped experiment directory:
+
+```text
+experiments/lolv2_test_real/<run-name>/results/raw/
+```
+
+The raw files are named `*_normal_raw.png`.
+
+Do not delete the four completed run directories before evaluation.
+
+---
+
+## 8. Generate the SC-ReDDiT Consensus and Metrics
+
+After all four inference runs have completed successfully, execute:
+
+```bash
+python evaluate_sc_reddit_final.py
+```
+
+The evaluator locates the four most recently modified completed raw runs under `experiments/lolv2_test_real/`, creates the sample-count ablation, and writes the consensus images and metric CSV files under:
+
+```text
+SC_ReDDiT_Final/
+```
+
+**Important:** The current evaluator consumes four completed inference runs. It does not launch those four inference runs automatically. The inference stage and evaluation stage are therefore separate commands.
+
+---
+
+## 9. Citation and Acknowledgement
+
+SC-ReDDiT builds on the ReDDiT method and implementation. Please cite the original paper when using the underlying model:
+
+**Efficient Diffusion as Low Light Enhancer**, CVPR 2025.
+
+Paper: https://arxiv.org/abs/2410.12346
+
+Project page: https://mqleet.github.io/ReDDiT_Project/
+
+```bibtex
+@InProceedings{Lan_2025_CVPR,
+    author    = {Lan, Guanzhou and Ma, Qianli and Yang, Yuqi and Wang, Zhigang and Wang, Dong and Li, Xuelong and Zhao, Bin},
+    title     = {Efficient Diffusion as Low Light Enhancer},
+    booktitle = {Proceedings of the Computer Vision and Pattern Recognition Conference (CVPR)},
+    month     = {June},
+    year      = {2025},
+    pages     = {21277-21286}
 }
 ```
 
-```
-"val": {
-    "schedule": "linear",
-                "n_timestep": 4,
-                "linear_start": 1e-4,
-                "linear_end": 2e-2,
-                "time_scale": 128
-}
-```
+The original ReDDiT work acknowledges SR3:
 
-```
-"val": {
-    "schedule": "linear",
-                "n_timestep": 2,
-                "linear_start": 1e-4,
-                "linear_end": 2e-2,
-                "time_scale": 256
-}
-```
-### :blue_book: Testing on unpaired data
+https://github.com/Janspiry/Image-Super-Resolution-via-Iterative-Refinement
 
-```
-python test_unpaired.py  --config config/test_unpaired.json --input unpaired_image_folder
-```
-
-You can use any one of these three pre-trained models, and employ different sampling steps to obtain visual-pleasing results by modifying these terms in the 'test_unpaired.json'.
-
-
-
-### :rocket: Training
-
-```
-bash train.sh
-```
-
-<a name="citation_and_acknowledgement"></a>
-## :black_nib: Citation
-
-   If you find our repo useful for your research, please consider citing our paper:
-
-   ```bibtex
-    @InProceedings{Lan_2025_CVPR,
-        author    = {Lan, Guanzhou and Ma, Qianli and Yang, Yuqi and Wang, Zhigang and Wang, Dong and Li, Xuelong and Zhao, Bin},
-        title     = {Efficient Diffusion as Low Light Enhancer},
-        booktitle = {Proceedings of the Computer Vision and Pattern Recognition Conference (CVPR)},
-        month     = {June},
-        year      = {2025},
-        pages     = {21277-21286}
-    }
-   ```
-
-
-## :heart: Acknowledgement
-
-Our code is built upon [SR3](https://github.com/Janspiry/Image-Super-Resolution-via-Iterative-Refinement). Thanks to the contributors for their great work.
+Please also review and comply with the original project's licensing and attribution terms when redistributing or using its code.
