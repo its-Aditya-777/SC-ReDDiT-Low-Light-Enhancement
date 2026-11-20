@@ -20,11 +20,9 @@ Four independent ReDDiT-4 inference runs are performed with the following random
 | 3 | 6429 |
 | 4 | 2705 |
 
-For predictions \(I_1, I_2, I_3, I_4\), the consensus is:
+For predictions (I₁, I₂, I₃, I₄), the consensus is:
 
-\[
-I_{SC} = \frac{1}{4}\sum_{k=1}^{4} I_k
-\]
+\(I_{SC}=\frac{1}{4}\sum _{k=1}^{4}I_{k}\)
 
 The four predictions are averaged pixel-wise, and the final image is clipped to the valid 8-bit range.
 
