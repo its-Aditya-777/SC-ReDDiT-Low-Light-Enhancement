@@ -42,7 +42,7 @@ def parse(args):
                 'experiments', opt['name'], '{}_w_snr:{}_w_str:{}_w_gt:{}_w_lpips:{}_{}'.format(opt['name'], args.w_snr, args.w_str, args.w_gt, args.w_lpips, get_timestamp()))
         elif opt['phase'] == 'test':
             experiments_root = os.path.join(
-                'experiments', opt['name'], '{}_numstep:{}_w_snr:{}_w_gt:{}_w_lpips:{}_{}'.format(opt['name'],opt["model"]['beta_schedule']['val']['n_timestep'], args.w_snr, args.w_gt, args.w_lpips, get_timestamp()))
+                'experiments', opt['name'], '{}_numstep:{}_w_snr:{}_w_gt:{}_w_lpips:{}_seed:{}_{}'.format(opt['name'],opt["model"]['beta_schedule']['val']['n_timestep'], args.w_snr, args.w_gt, args.w_lpips, opt.get('seed', 'random'), get_timestamp()))
     experiments_root = experiments_root.replace(':', '_')
     opt['path']['experiments_root'] = experiments_root
     for key, path in opt['path'].items():

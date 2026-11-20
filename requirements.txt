@@ -1,7 +1,8 @@
-opencv-python==4.5.2.54
-PyYAML==6.0
-natsort==8.1.0
-scikit-image==0.18.1
+﻿numpy>=1.23.5,<2.0
+opencv-python>=4.8,<4.12
+PyYAML>=6.0
+natsort>=8.4,<9
+scikit-image>=0.20,<0.22
 lpips==0.1.4
-kmeans_pytorch
-scikit-learn==1.0
+kmeans-pytorch
+scikit-learn>=1.2,<1.4

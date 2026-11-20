@@ -1,10 +1,10 @@
-﻿from pathlib import Path
+from pathlib import Path
 import cv2
 import numpy as np
 from utils import util
 
-ROOT = Path(r".\experiments\lolv2_test_real")
-SAVE = Path(r".\ensemble4_results")
+ROOT = Path("experiments") / "lolv2_test_real"
+SAVE = Path("ensemble4_results")
 SAVE.mkdir(exist_ok=True)
 
 # Find completed official ReDDiT runs

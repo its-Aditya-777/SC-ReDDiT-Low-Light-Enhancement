@@ -1,4 +1,4 @@
-﻿from pathlib import Path
+from pathlib import Path
 from itertools import combinations
 import re
 import csv
@@ -10,8 +10,8 @@ import lpips
 from utils import util
 
 
-ROOT = Path(r".\experiments\lolv2_test_real")
-OUT = Path(r".\SC_ReDDiT_Final")
+ROOT = Path("experiments") / "lolv2_test_real"
+OUT = Path("SC_ReDDiT_Final")
 OUT.mkdir(exist_ok=True)
 
 FINAL_IMG_DIR = OUT / "consensus4"
