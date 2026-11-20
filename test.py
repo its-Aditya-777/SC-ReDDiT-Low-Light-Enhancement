@@ -140,9 +140,11 @@ def main():
     result_path_gt = result_path+'/gt/'
     result_path_out = result_path+'/output/'
     result_path_input = result_path+'/input/'
+    result_path_raw = result_path+'/raw/'
     os.makedirs(result_path_gt, exist_ok=True)
     os.makedirs(result_path_out, exist_ok=True)
     os.makedirs(result_path_input, exist_ok=True)
+    os.makedirs(result_path_raw, exist_ok=True)
 
     #diffusion.set_new_noise_schedule(
         #opt['model']['beta_schedule']['val'], schedule_phase='val')
@@ -188,6 +190,10 @@ def main():
             # util.save_img(
             #     Metrics.tensor2img(visuals['HQ'][-1]), '{}/{}_normal.png'.format(result_path, idx))
             normal_img = Metrics.tensor2img(visuals['HQ'][-1])
+
+        # Save RAW ReDDiT prediction before GT-mean brightness adjustment.
+        util.save_img(
+            normal_img, '{}/{}_normal_raw.png'.format(result_path_raw, idx))
 
         # Similar to LLFlow, we follow a similar way of 'Kind' to finetune the overall brightness 
         # as illustrated in Line 73 (https://github.com/zhangyhuaee/KinD/blob/master/evaluate_LOLdataset.py).

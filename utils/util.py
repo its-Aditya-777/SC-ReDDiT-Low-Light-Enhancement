@@ -229,18 +229,18 @@ def calculate_psnr(img1, img2):
 def calculate_ssim(imgA, imgB, gray_scale=False):
 
     if gray_scale:
-        score, diff = SSIM(cv2.cvtColor(imgA, cv2.COLOR_RGB2GRAY), cv2.cvtColor(imgB, cv2.COLOR_RGB2GRAY), full=True, multichannel=True)
+        score, diff = SSIM(cv2.cvtColor(imgA, cv2.COLOR_RGB2GRAY), cv2.cvtColor(imgB, cv2.COLOR_RGB2GRAY), full=True, channel_axis=-1)
     else:
-        score, diff = SSIM(imgA, imgB, full=True, multichannel=True)
+        score, diff = SSIM(imgA, imgB, full=True, channel_axis=-1)
     return score
 
 
 def calculate_lpips(imgA, imgB, gray_scale=False):
 
     if gray_scale:
-        score, diff = SSIM(cv2.cvtColor(imgA, cv2.COLOR_RGB2GRAY), cv2.cvtColor(imgB, cv2.COLOR_RGB2GRAY), full=True, multichannel=True)
+        score, diff = SSIM(cv2.cvtColor(imgA, cv2.COLOR_RGB2GRAY), cv2.cvtColor(imgB, cv2.COLOR_RGB2GRAY), full=True, channel_axis=-1)
     else:
-        score, diff = SSIM(imgA, imgB, full=True, multichannel=True)
+        score, diff = SSIM(imgA, imgB, full=True, channel_axis=-1)
     return score
 
 def get_resume_paths(opt):
@@ -267,3 +267,4 @@ def opt_get(opt, keys, default=None):
         if ret is None:
             return default
     return ret
+

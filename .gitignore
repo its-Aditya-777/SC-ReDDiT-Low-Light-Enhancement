@@ -1,0 +1,17 @@
+﻿dataset/
+checkpoint/
+*.pth
+*.pt
+*.ckpt
+experiments/
+results/
+outputs/
+output/
+SC_ReDDiT_Final/consensus4/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+.DS_Store
+Thumbs.db

@@ -1,0 +1,26 @@
+SC-ReDDiT FINAL RESULTS
+========================
+
+Run 1: lolv2_test_real_numstep_4_w_snr_0.2_w_gt_0.2_w_lpips_0.1_261026_044438
+Seed 1: 5660
+Run 2: lolv2_test_real_numstep_4_w_snr_0.2_w_gt_0.2_w_lpips_0.1_261026_044204
+Seed 2: 459
+Run 3: lolv2_test_real_numstep_4_w_snr_0.2_w_gt_0.2_w_lpips_0.1_261026_043910
+Seed 3: 6429
+Run 4: lolv2_test_real_numstep_4_w_snr_0.2_w_gt_0.2_w_lpips_0.1_261026_043641
+Seed 4: 2705
+
+N=1 | PSNR=31.2293±0.0219 | SSIM=0.9036±0.0001 | LPIPS=0.0366±0.0001
+N=2 | PSNR=31.3621±0.0139 | SSIM=0.9097±0.0001 | LPIPS=0.0352±0.0000
+N=3 | PSNR=31.4086±0.0081 | SSIM=0.9118±0.0000 | LPIPS=0.0348±0.0000
+N=4 | PSNR=31.4315±0.0000 | SSIM=0.9128±0.0000 | LPIPS=0.0346±0.0000
+
+FINAL N=4 PSNR: 31.4315
+FINAL N=4 SSIM: 0.9128
+FINAL N=4 LPIPS: 0.0346
+RAW N=4 PSNR: 28.0527
+RAW N=4 SSIM: 0.9054
+Gain vs average single PSNR: +0.2023
+Gain vs average single SSIM: +0.0092
+LPIPS change vs average single: -0.0019
+Per-image PSNR wins/losses/ties: 96/4/0
